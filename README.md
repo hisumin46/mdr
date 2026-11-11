@@ -1,53 +1,57 @@
 # mdr
 
-macOS용 마크다운 리더입니다. `.md` 파일을 렌더링된 미리보기로 열고, 필요할 때만 수정해서 저장합니다.
+English | [한국어](README.ko.md)
 
-- 파일마다 별도 창으로 열립니다.
-- 다른 프로그램이 파일을 바꾸면 자동으로 다시 읽습니다.
-- Finder에서 스페이스바(훑어보기)를 눌러도 렌더링된 모습으로 보입니다.
-- 표, 체크리스트, 코드 하이라이트 등 GitHub 방식 마크다운을 지원합니다.
-- 라이트/다크 모드를 따라갑니다.
+A Markdown reader for macOS. It opens `.md` files as a rendered preview, and lets you edit and save only when you need to.
 
-macOS 14 이상에서 동작하며, 애플 실리콘과 인텔 맥을 모두 지원합니다.
+- Each file opens in its own window.
+- The preview reloads automatically when another program changes the file.
+- Pressing the space bar in Finder (Quick Look) also shows the rendered Markdown.
+- Supports GitHub Flavored Markdown: tables, task lists, syntax highlighting.
+- Follows the system light and dark appearance.
 
-## 설치
+Requires macOS 14 or later. Runs on both Apple silicon and Intel Macs.
 
-### 방법 1. 터미널 한 줄
+The app's menus and messages are in Korean.
+
+## Install
+
+### Option 1. One line in the terminal
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hisumin46/mdr/main/install.sh | bash
 ```
 
-최신 버전을 내려받아 `/Applications/mdr.app`으로 설치하고, 터미널 명령어 `mdr`을 `~/.local/bin`에 연결합니다. 업데이트할 때도 같은 명령을 다시 실행하면 됩니다.
+This downloads the latest version, installs it as `/Applications/mdr.app`, and links the `mdr` command into `~/.local/bin`. Run the same command again to update.
 
-`~/.local/bin`이 `PATH`에 없으면 설치가 끝날 때 추가할 줄을 알려 줍니다. 다른 폴더에 두려면 이렇게 실행합니다.
+If `~/.local/bin` is not on your `PATH`, the installer prints the line to add. To put the command somewhere else:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hisumin46/mdr/main/install.sh | MDR_BIN_DIR=/usr/local/bin bash
 ```
 
-### 방법 2. dmg 파일
+### Option 2. The dmg file
 
-1. [mdr.dmg](https://github.com/hisumin46/mdr/releases/latest/download/mdr.dmg)를 내려받아 엽니다.
-2. `mdr`을 `Applications` 폴더로 끌어다 놓습니다.
-3. 터미널에서 아래 명령을 한 번 실행합니다.
+1. Download [mdr.dmg](https://github.com/hisumin46/mdr/releases/latest/download/mdr.dmg) and open it.
+2. Drag `mdr` into the `Applications` folder.
+3. Run this once in the terminal:
 
    ```bash
    xattr -dr com.apple.quarantine /Applications/mdr.app
    ```
 
-   mdr은 Apple 공증을 받지 않은 앱이라, 브라우저로 받은 경우 이 명령 없이는 macOS가 실행을 막습니다. 터미널 대신 앱을 한 번 열어 본 뒤 `시스템 설정 > 개인정보 보호 및 보안`에서 `그래도 열기`를 눌러도 됩니다.
+   mdr is not notarized by Apple, so macOS blocks it when the dmg was downloaded with a browser. Instead of the terminal, you can also try to open the app once and then click `Open Anyway` in `System Settings > Privacy & Security`.
 
-4. 터미널 명령어 `mdr`도 쓰려면 연결해 줍니다.
+4. To use the `mdr` command as well, link it:
 
    ```bash
    mkdir -p ~/.local/bin
    ln -sf /Applications/mdr.app/Contents/Resources/mdr ~/.local/bin/mdr
    ```
 
-### 방법 3. 소스에서 빌드
+### Option 3. Build from source
 
-Xcode 명령어 도구(`xcode-select --install`)가 필요합니다.
+Requires the Xcode Command Line Tools (`xcode-select --install`).
 
 ```bash
 git clone https://github.com/hisumin46/mdr.git
@@ -55,57 +59,57 @@ cd mdr
 ./build.sh install
 ```
 
-## 사용법
+## Usage
 
 ```bash
-mdr README.md        # 파일 열기
-mdr a.md b.md        # 여러 파일을 각각 새 창으로
-mdr                  # 파일 선택 창
+mdr README.md        # open a file
+mdr a.md b.md        # open several files, each in a new window
+mdr                  # show the file picker
 ```
 
-Finder에서 `.md` 파일을 mdr로 열려면 파일을 우클릭해 `정보 가져오기 > 다음으로 열기`에서 mdr을 고르고 `모두 변경`을 누릅니다.
+To open `.md` files with mdr from Finder, right-click a file, choose `Get Info`, pick mdr under `Open with`, and click `Change All…`.
 
-| 동작 | 단축키 |
+| Action | Shortcut |
 | --- | --- |
-| 미리보기 / 수정 전환 | `⌘E` |
-| 저장 | `⌘S` |
-| 수정 화면에서 미리보기로 | `esc` |
-| 찾기, 다음, 이전 | `⌘F`, `⌘G`, `⇧⌘G` |
-| 디스크에서 다시 읽기 | `⌘R` |
-| Finder에서 보기 | `⇧⌘R` |
-| 확대, 축소, 원래 크기 | `⌘=`, `⌘-`, `⌘0` |
-| 파일 열기 | `⌘O` |
+| Switch between preview and edit | `⌘E` |
+| Save | `⌘S` |
+| Back to preview from the editor | `esc` |
+| Find, next, previous | `⌘F`, `⌘G`, `⇧⌘G` |
+| Reload from disk | `⌘R` |
+| Show in Finder | `⇧⌘R` |
+| Zoom in, zoom out, actual size | `⌘=`, `⌘-`, `⌘0` |
+| Open a file | `⌘O` |
 
-창 오른쪽 위의 `수정`, `저장`, `미리보기` 버튼으로도 같은 동작을 할 수 있습니다.
+The buttons at the top right of the window do the same: `수정` (edit), `저장` (save), and `미리보기` (preview).
 
-## 알아 둘 점
+## Good to know
 
-- 훑어보기(스페이스바)는 읽기 전용입니다. 수정하려면 mdr 창으로 여세요.
-- 훑어보기에서는 상대 경로 이미지가 보이지 않습니다. mdr 창에서는 보입니다.
-- LaTeX 수식과 mermaid 다이어그램은 지원하지 않습니다.
+- Quick Look (space bar) is read-only. Open the file in an mdr window to edit it.
+- Images with relative paths do not show in Quick Look. They do show in an mdr window.
+- LaTeX math and mermaid diagrams are not supported.
 
-## 삭제
+## Uninstall
 
 ```bash
 rm -rf /Applications/mdr.app ~/.local/bin/mdr
 ```
 
-## 개발
+## Development
 
-Xcode 프로젝트 없이 `swiftc`로 빌드합니다.
+mdr is built with `swiftc`, without an Xcode project.
 
 ```bash
 ./build.sh            # build/mdr.app
-./build.sh install    # 빌드 후 /Applications 에 설치
-./build.sh dmg        # 배포용 build/mdr.dmg (인텔·애플 실리콘 겸용)
+./build.sh install    # build, then install into /Applications
+./build.sh dmg        # build/mdr.dmg for distribution (Apple silicon + Intel)
 ```
 
-| 경로 | 내용 |
+| Path | Contents |
 | --- | --- |
-| `Sources/main.swift` | 앱 본체 (AppKit + WKWebView) |
-| `Resources/web/` | 미리보기·수정 화면 (HTML, CSS, JS) |
-| `QuickLook/` | Finder 훑어보기 확장 |
-| `bin/mdr` | 터미널 명령어 |
-| `scripts/make-icon.swift` | 앱 아이콘 생성 |
+| `Sources/main.swift` | The app (AppKit + WKWebView) |
+| `Resources/web/` | Preview and editor UI (HTML, CSS, JS) |
+| `QuickLook/` | Finder Quick Look extension |
+| `bin/mdr` | The terminal command |
+| `scripts/make-icon.swift` | Generates the app icon |
 
-마크다운 렌더링에는 [marked](https://github.com/markedjs/marked), [DOMPurify](https://github.com/cure53/DOMPurify), [highlight.js](https://github.com/highlightjs/highlight.js)를 사용합니다.
+Markdown rendering uses [marked](https://github.com/markedjs/marked), [DOMPurify](https://github.com/cure53/DOMPurify), and [highlight.js](https://github.com/highlightjs/highlight.js).
