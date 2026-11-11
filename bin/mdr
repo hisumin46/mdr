@@ -1,0 +1,21 @@
+#!/bin/sh
+# mdr — 마크다운 파일을 mdr 앱으로 연다.
+#   mdr              열기 창
+#   mdr a.md b.md    파일 열기
+
+if [ $# -eq 0 ]; then
+  exec open -b app.mdr.reader
+fi
+
+for file in "$@"; do
+  if [ -d "$file" ]; then
+    echo "mdr: 폴더는 열 수 없습니다: $file" >&2
+    exit 1
+  fi
+  if [ ! -f "$file" ]; then
+    echo "mdr: 파일이 없습니다: $file" >&2
+    exit 1
+  fi
+done
+
+exec open -b app.mdr.reader "$@"

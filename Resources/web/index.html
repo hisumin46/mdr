@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mdr</title>
+<link rel="stylesheet" href="style.css">
+<script src="vendor/marked.js"></script>
+<script src="vendor/purify.js"></script>
+<script src="vendor/highlight.js"></script>
+</head>
+<body data-mode="view">
+<article id="view" class="markdown"></article>
+<textarea id="editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+
+<div id="toolbar">
+  <button id="btn-save" type="button" hidden>저장</button>
+  <button id="btn-toggle" type="button">수정</button>
+</div>
+<div id="findbar" hidden>
+  <input id="findinput" type="text" placeholder="찾기" spellcheck="false">
+  <span id="findcount"></span>
+</div>
+<div id="status" hidden></div>
+<div id="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>

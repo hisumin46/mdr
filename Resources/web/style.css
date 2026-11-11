@@ -1,0 +1,278 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1f2328;
+  --muted: #656d76;
+  --border: #d8dee4;
+  --soft: #f6f8fa;
+  --accent: #0969da;
+  --mark: #fff3a3;
+  --mark-current: #ffb84d;
+  --pill-bg: rgba(31, 35, 40, 0.86);
+  --pill-fg: #ffffff;
+  --hl-keyword: #cf222e;
+  --hl-string: #0a3069;
+  --hl-number: #0550ae;
+  --hl-comment: #6e7781;
+  --hl-title: #8250df;
+  --hl-attr: #116329;
+  --sans: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Helvetica Neue", sans-serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, "D2Coding", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1e;
+    --fg: #e6edf3;
+    --muted: #9198a1;
+    --border: #3d444d;
+    --soft: #2a2d31;
+    --accent: #6cb6ff;
+    --mark: #6b5a00;
+    --mark-current: #b36b00;
+    --pill-bg: rgba(240, 246, 252, 0.9);
+    --pill-fg: #1f2328;
+    --hl-keyword: #ff7b72;
+    --hl-string: #a5d6ff;
+    --hl-number: #79c0ff;
+    --hl-comment: #8b949e;
+    --hl-title: #d2a8ff;
+    --hl-attr: #7ee787;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 모드 전환 ── */
+#editor { display: none; }
+body[data-mode="edit"] { overflow: hidden; }
+body[data-mode="edit"] #view { display: none; }
+body[data-mode="edit"] #editor { display: block; }
+
+/* ── 미리보기 ── */
+.markdown {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 52px 40px 96px;
+  font-size: 16px;
+  line-height: 1.7;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.markdown > :first-child { margin-top: 0; }
+
+.markdown h1, .markdown h2, .markdown h3,
+.markdown h4, .markdown h5, .markdown h6 {
+  margin: 1.8em 0 0.6em;
+  line-height: 1.3;
+  font-weight: 650;
+  scroll-margin-top: 16px;
+}
+.markdown h1 { font-size: 1.9em; padding-bottom: 0.3em; border-bottom: 1px solid var(--border); }
+.markdown h2 { font-size: 1.45em; padding-bottom: 0.25em; border-bottom: 1px solid var(--border); }
+.markdown h3 { font-size: 1.2em; }
+.markdown h4 { font-size: 1.05em; }
+.markdown h5, .markdown h6 { font-size: 0.95em; color: var(--muted); }
+
+.markdown p, .markdown ul, .markdown ol, .markdown blockquote,
+.markdown pre, .markdown .table-wrap, .markdown details {
+  margin: 0 0 1em;
+}
+
+.markdown a { color: var(--accent); text-decoration: none; }
+.markdown a:hover { text-decoration: underline; }
+
+.markdown ul, .markdown ol { padding-left: 1.7em; }
+.markdown li { margin: 0.2em 0; }
+.markdown li > ul, .markdown li > ol { margin: 0.2em 0; }
+.markdown li:has(> input[type="checkbox"]) { list-style: none; margin-left: -1.4em; }
+.markdown li > input[type="checkbox"] { margin: 0 0.45em 0 0; vertical-align: -1px; }
+
+.markdown blockquote {
+  padding: 0.1em 1em;
+  border-left: 3px solid var(--border);
+  color: var(--muted);
+}
+.markdown blockquote > :last-child { margin-bottom: 0; }
+
+.markdown code {
+  font-family: var(--mono);
+  font-size: 0.875em;
+  padding: 0.15em 0.4em;
+  border-radius: 5px;
+  background: var(--soft);
+}
+.markdown pre {
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: var(--soft);
+  overflow-x: auto;
+  line-height: 1.5;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+.markdown pre code {
+  padding: 0;
+  background: none;
+  font-size: 0.85em;
+  white-space: pre;
+}
+.markdown pre.frontmatter {
+  font-family: var(--mono);
+  font-size: 0.8em;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  background: none;
+}
+
+/* 표: 항상 본문 폭에 맞춘다. 내용이 넘치면 표 안에서만 가로 스크롤 */
+.markdown .table-wrap { overflow-x: auto; }
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.93em;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+}
+.markdown th, .markdown td {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  vertical-align: top;
+  /* 칸 안에서는 단어 중간을 끊지 않는다: 칸 최소 폭 = 가장 긴 단어 */
+  overflow-wrap: break-word;
+}
+.markdown th { white-space: nowrap; }
+.markdown th:not([align]) { text-align: left; }
+.markdown th { background: var(--soft); font-weight: 600; }
+
+.markdown img { max-width: 100%; height: auto; border-radius: 4px; }
+.markdown hr { height: 1px; margin: 2em 0; border: 0; background: var(--border); }
+.markdown kbd {
+  font-family: var(--mono);
+  font-size: 0.8em;
+  padding: 0.15em 0.45em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+}
+.markdown .empty { color: var(--muted); }
+
+/* ── 코드 하이라이트 ── */
+.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-built_in, .hljs-doctag, .hljs-deletion { color: var(--hl-keyword); }
+.hljs-string, .hljs-regexp, .hljs-meta .hljs-string { color: var(--hl-string); }
+.hljs-number, .hljs-variable, .hljs-template-variable, .hljs-symbol, .hljs-bullet, .hljs-attr { color: var(--hl-number); }
+.hljs-comment, .hljs-quote, .hljs-meta { color: var(--hl-comment); }
+.hljs-title, .hljs-section, .hljs-type, .hljs-selector-id, .hljs-selector-class { color: var(--hl-title); }
+.hljs-name, .hljs-attribute, .hljs-tag, .hljs-addition { color: var(--hl-attr); }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 600; }
+
+/* ── 수정 모드 ── */
+#editor {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 56px max(40px, calc((100vw - 820px) / 2 + 40px)) 96px;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+/* ── 떠 있는 UI ── */
+#toolbar {
+  position: fixed;
+  z-index: 11;
+  top: 10px;
+  right: 16px;
+  display: flex;
+  gap: 6px;
+}
+#toolbar button {
+  padding: 5px 13px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 500 12px var(--sans);
+  cursor: pointer;
+}
+#toolbar button:hover { background: var(--soft); }
+#toolbar button[hidden] { display: none; }
+#toolbar #btn-save {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+}
+#toolbar #btn-save:hover { filter: brightness(1.08); }
+
+#status, #toast, #findbar {
+  position: fixed;
+  z-index: 10;
+  font-size: 12px;
+  border-radius: 999px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#status {
+  right: 16px;
+  bottom: 14px;
+  padding: 5px 12px;
+  background: var(--pill-bg);
+  color: var(--pill-fg);
+}
+#toast {
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  background: var(--pill-bg);
+  color: var(--pill-fg);
+  white-space: nowrap;
+}
+#findbar {
+  top: 48px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+}
+#findbar[hidden], #status[hidden], #toast[hidden] { display: none; }
+#findinput {
+  width: 200px;
+  padding: 4px 10px;
+  border: 0;
+  outline: 0;
+  border-radius: 999px;
+  background: var(--soft);
+  color: var(--fg);
+  font: 13px var(--sans);
+}
+#findcount { min-width: 44px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+::highlight(find) { background: var(--mark); }
+::highlight(find-current) { background: var(--mark-current); }
+
+@media print {
+  #status, #toast, #findbar, #toolbar { display: none !important; }
+  .markdown { max-width: none; padding: 0; }
+}
