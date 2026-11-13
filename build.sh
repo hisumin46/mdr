@@ -33,7 +33,7 @@ rm -rf "$APP"
 mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources"
 
 echo "› 컴파일 ($ARCHS)"
-compile "$CONTENTS/MacOS/mdr" Sources/main.swift
+compile "$CONTENTS/MacOS/mdr" Sources/*.swift
 
 echo "› 리소스"
 cp Info.plist "$CONTENTS/Info.plist"

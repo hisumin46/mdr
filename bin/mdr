@@ -2,10 +2,23 @@
 # mdr — 마크다운 파일을 mdr 앱으로 연다.
 #   mdr              열기 창
 #   mdr a.md b.md    파일 열기
+#   mdr --version    설치된 버전
 
 if [ $# -eq 0 ]; then
   exec open -b app.mdr.reader
 fi
+
+case "$1" in
+  -v|--version)
+    # 이 스크립트는 mdr.app/Contents/Resources/mdr 에 있고, 보통 ~/.local/bin/mdr 로 연결된다.
+    app="$(dirname "$(readlink -f "$0")")/../.."
+    [ -f "$app/Contents/Info.plist" ] || app=/Applications/mdr.app
+    version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist" 2>/dev/null)" \
+      || { echo "mdr: 앱을 찾을 수 없습니다" >&2; exit 1; }
+    echo "mdr $version"
+    exit 0
+    ;;
+esac
 
 for file in "$@"; do
   if [ -d "$file" ]; then

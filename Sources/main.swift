@@ -273,6 +273,15 @@ final class DocumentWindow: NSObject, NSWindowDelegate, WKScriptMessageHandler, 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var documents: [DocumentWindow] = []
     private var cascadePoint = NSPoint.zero
+    private let updater = Updater()
+    private var installUpdateOnQuit = false
+
+    /// 맨 앞의 문서 창. 앱이 비활성이면 mainWindow 가 nil 이라 창 순서로 찾는다.
+    private var frontDocument: DocumentWindow? {
+        NSApp.orderedWindows.lazy
+            .compactMap { window in self.documents.first { $0.window === window } }
+            .first
+    }
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSApp.mainMenu = buildMenu()
@@ -288,6 +297,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             guard let self, self.documents.isEmpty else { return }
             self.openDocument(nil)
             if self.documents.isEmpty { NSApp.terminate(nil) }
+        }
+
+        updater.frontWindow = { [weak self] in self?.frontDocument?.window }
+        updater.onInstall = { [weak self] in
+            self?.installUpdateOnQuit = true
+            NSApp.terminate(nil)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            self?.updater.checkOnLaunch()
         }
     }
 
@@ -305,8 +323,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         alert.informativeText = unsaved.map(\.url.lastPathComponent).sorted().joined(separator: ", ")
         alert.addButton(withTitle: "취소")
         alert.addButton(withTitle: "버리고 종료")
-        return alert.runModal() == .alertSecondButtonReturn ? .terminateNow : .terminateCancel
+        if alert.runModal() == .alertSecondButtonReturn { return .terminateNow }
+        installUpdateOnQuit = false
+        return .terminateCancel
     }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        if installUpdateOnQuit { updater.launchInstaller(reopen: documents.map(\.url)) }
+    }
+
+    @objc func checkForUpdates(_ sender: Any?) { updater.checkFromMenu() }
 
     /// 파일을 새 창으로 연다. 이미 열린 파일이어도 창을 하나 더 띄운다.
     /// 한 창에서 저장하면 다른 창은 checkDisk 가 디스크 변경으로 보고 다시 읽는다.
@@ -338,11 +364,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// ⌘N: 지금 보고 있는 파일을 새 창으로 하나 더 연다. 보고 있는 창이 없으면 열기 창을 띄운다.
     @objc func newWindow(_ sender: Any?) {
-        // 맨 앞의 문서 창. 앱이 비활성이면 mainWindow 가 nil 이라 창 순서로 찾는다.
-        let front = NSApp.orderedWindows.lazy
-            .compactMap { window in self.documents.first { $0.window === window } }
-            .first
-        guard let front else { return openDocument(sender) }
+        guard let front = frontDocument else { return openDocument(sender) }
         open(front.url)
     }
 
@@ -374,6 +396,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         submenu("mdr") { menu in
+            add(menu, "mdr 정보", #selector(NSApplication.orderFrontStandardAboutPanel(_:)))
+            add(menu, "업데이트 확인…", #selector(AppDelegate.checkForUpdates(_:)))
+            menu.addItem(.separator())
             add(menu, "mdr 가리기", #selector(NSApplication.hide(_:)), "h")
             add(menu, "기타 가리기", #selector(NSApplication.hideOtherApplications(_:)), "h", [.command, .option])
             menu.addItem(.separator())

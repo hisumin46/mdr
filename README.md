@@ -59,12 +59,23 @@ cd mdr
 ./build.sh install
 ```
 
+## Update
+
+Once a day, when mdr starts, it checks for a new version and asks whether to update. `지금 업데이트` (update now) closes mdr, installs the new version, and reopens it with the files you had open. You can also check from the menu: `mdr > 업데이트 확인…` (check for updates).
+
+To see the installed version, choose `mdr > mdr 정보` (about mdr) or run `mdr --version`.
+
+Versions before 0.1.2 cannot update themselves. Install once more with one of the methods above.
+
+The update check only asks GitHub for the latest release version. mdr sends nothing else.
+
 ## Usage
 
 ```bash
 mdr README.md        # open a file
 mdr a.md b.md        # open several files, each in a new window
 mdr                  # show the file picker
+mdr --version        # show the installed version
 ```
 
 To open `.md` files with mdr from Finder, right-click a file, choose `Get Info`, pick mdr under `Open with`, and click `Change All…`.
