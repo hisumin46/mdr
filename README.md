@@ -78,6 +78,8 @@ To open `.md` files with mdr from Finder, right-click a file, choose `Get Info`,
 | Reload from disk | `⌘R` |
 | Show in Finder | `⇧⌘R` |
 | Zoom in, zoom out, actual size | `⌘=`, `⌘-`, `⌘0` |
+| Magnify the page, like a web page | Pinch on the trackpad |
+| Open the current file in another window | `⌘N` |
 | Open a file | `⌘O` |
 
 The buttons at the top right of the window do the same: `수정` (edit), `저장` (save), and `미리보기` (preview).

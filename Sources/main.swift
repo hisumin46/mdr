@@ -33,6 +33,8 @@ final class DocumentWindow: NSObject, NSWindowDelegate, WKScriptMessageHandler, 
         webView = WKWebView(frame: .zero, configuration: config)
         webView.setValue(false, forKey: "drawsBackground")
         webView.pageZoom = DocumentWindow.savedZoom
+        // 트랙패드 핀치 확대 (Safari 와 같은 화면 확대). ⌘+/- 의 글자 크기 조절(pageZoom)과는 별개다.
+        webView.allowsMagnification = true
 
         window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 880, height: 960),
@@ -227,7 +229,10 @@ final class DocumentWindow: NSObject, NSWindowDelegate, WKScriptMessageHandler, 
 
     @objc func zoomIn(_ sender: Any?) { setZoom(webView.pageZoom + 0.1) }
     @objc func zoomOut(_ sender: Any?) { setZoom(webView.pageZoom - 0.1) }
-    @objc func zoomReset(_ sender: Any?) { setZoom(1) }
+    @objc func zoomReset(_ sender: Any?) {
+        setZoom(1)
+        webView.magnification = 1
+    }
 
     // MARK: 닫기
 
@@ -266,7 +271,7 @@ final class DocumentWindow: NSObject, NSWindowDelegate, WKScriptMessageHandler, 
 // MARK: - 앱
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private var documents: [URL: DocumentWindow] = [:]
+    private var documents: [DocumentWindow] = []
     private var cascadePoint = NSPoint.zero
 
     func applicationWillFinishLaunching(_ notification: Notification) {
@@ -287,13 +292,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func application(_ application: NSApplication, open urls: [URL]) {
-        urls.forEach(open)
+        urls.forEach { open($0) }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        let unsaved = documents.values.filter(\.dirty)
+        let unsaved = documents.filter(\.dirty)
         guard !unsaved.isEmpty else { return .terminateNow }
         let alert = NSAlert()
         alert.messageText = "저장하지 않은 문서가 \(unsaved.count)개 있습니다"
@@ -303,9 +308,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return alert.runModal() == .alertSecondButtonReturn ? .terminateNow : .terminateCancel
     }
 
-    func open(_ raw: URL) {
+    /// 파일을 새 창으로 연다. 이미 열린 파일이어도 창을 하나 더 띄운다.
+    /// 한 창에서 저장하면 다른 창은 checkDisk 가 디스크 변경으로 보고 다시 읽는다.
+    /// reuse 는 문서 안 링크용: 누를 때마다 창이 늘지 않도록 열린 창이 있으면 그 창을 앞으로 가져온다.
+    func open(_ raw: URL, reuse: Bool = false) {
         let url = raw.standardizedFileURL.resolvingSymlinksInPath()
-        if let existing = documents[url] {
+        if reuse, let existing = documents.first(where: { $0.url == url }) {
             existing.window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
             return
@@ -315,9 +323,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
               !isDirectory.boolValue else { return }
 
         let document = DocumentWindow(url: url)
-        document.onClose = { [weak self] in self?.documents[url] = nil }
-        document.openOther = { [weak self] other in self?.open(other) }
-        documents[url] = document
+        document.onClose = { [weak self, weak document] in
+            self?.documents.removeAll { $0 === document }
+        }
+        document.openOther = { [weak self] other in self?.open(other, reuse: true) }
+        documents.append(document)
 
         if !document.window.setFrameUsingName(frameName) { document.window.center() }
         cascadePoint = document.window.cascadeTopLeft(from: cascadePoint)
@@ -326,13 +336,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
 
+    /// ⌘N: 지금 보고 있는 파일을 새 창으로 하나 더 연다. 보고 있는 창이 없으면 열기 창을 띄운다.
+    @objc func newWindow(_ sender: Any?) {
+        // 맨 앞의 문서 창. 앱이 비활성이면 mainWindow 가 nil 이라 창 순서로 찾는다.
+        let front = NSApp.orderedWindows.lazy
+            .compactMap { window in self.documents.first { $0.window === window } }
+            .first
+        guard let front else { return openDocument(sender) }
+        open(front.url)
+    }
+
     @objc func openDocument(_ sender: Any?) {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = true
         panel.canChooseDirectories = false
         panel.message = "마크다운 파일을 선택하세요"
         NSApp.activate(ignoringOtherApps: true)
-        if panel.runModal() == .OK { panel.urls.forEach(open) }
+        if panel.runModal() == .OK { panel.urls.forEach { open($0) } }
     }
 
     private func buildMenu() -> NSMenu {
@@ -360,6 +380,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             add(menu, "mdr 종료", #selector(NSApplication.terminate(_:)), "q")
         }
         submenu("파일") { menu in
+            add(menu, "새 창", #selector(AppDelegate.newWindow(_:)), "n")
             add(menu, "열기…", #selector(AppDelegate.openDocument(_:)), "o")
             menu.addItem(.separator())
             add(menu, "저장", #selector(DocumentWindow.saveDocument(_:)), "s")
